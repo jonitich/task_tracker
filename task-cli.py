@@ -44,10 +44,6 @@ class Task():
         tasks.append(task)
         self.save_tasks(tasks)
         print(f"Task {new_id} created successfully.")
-    
-    def mark_task(self, id, state):
-        """ Mark a task as: In progress, Todo or Done. """
-        pass
 
 
 
@@ -58,8 +54,17 @@ def handle_add_task(args):
 
 def handle_mark_tasks(args):
     tasks = Task.load_tasks()
-    print(tasks)
-    print(type(tasks))
+    for task in tasks:
+        if task["id"] == args.id:
+            t = {
+                "id": args.id,
+                "description": task["description"],
+                "status": args.state,
+                "createdAt": task["createdAt"],
+                "updatedAt": time.ctime()
+            }
+            tasks[args.id -1] = t
+            Task.save_tasks(tasks)
 
 def main():
     parser =  argparse.ArgumentParser(prog="task-cli")
@@ -78,7 +83,10 @@ def main():
     
     # Parse Args
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except AttributeError:
+        print(parser.print_help())
 
 if __name__ == "__main__":    
     main()
