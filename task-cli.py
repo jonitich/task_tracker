@@ -46,8 +46,6 @@ class Task():
         print(f"Task {new_id} created successfully.")
 
 
-
-
 def handle_add_task(args):
     task = Task(args.task)
     task.create_task()
@@ -66,6 +64,26 @@ def handle_mark_tasks(args):
             tasks[args.id -1] = t
             Task.save_tasks(tasks)
 
+def handle_list_tasks(args):
+    tasks = Task.load_tasks()
+    match args.task:
+        case "all":
+            for task in tasks:
+                print(task)
+        case "to-do":
+            for task in tasks:
+                if task["status"] == "to-do":
+                    print(task)
+        case "in-progress":
+            for task in tasks:
+                if task["status"] == "in-progress":
+                    print(task)
+        case "done":
+            for task in tasks:
+                if task["status"] == "done":
+                    print(task)
+
+
 def main():
     parser =  argparse.ArgumentParser(prog="task-cli")
     subparser = parser.add_subparsers(help='subcommand help')
@@ -80,6 +98,11 @@ def main():
     parser_mark.add_argument('id', help="ID of the task to mark.", type=int)
     parser_mark.add_argument("state", choices=["to-do", "in-progress", "done"], type=str)
     parser_mark.set_defaults(func=handle_mark_tasks)
+    
+    # List Subcommand
+    parser_list = subparser.add_parser("list", help="List tasks.")
+    parser_list.add_argument("task", choices=["all", "to-do", "in-progress", "done"])
+    parser_list.set_defaults(func=handle_list_tasks)
     
     # Parse Args
     args = parser.parse_args()
