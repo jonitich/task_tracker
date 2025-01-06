@@ -92,13 +92,20 @@ def handle_delete_task(args):
         new_task_list.append(tasks[i])
     Task.save_tasks(new_task_list)
 
+def handle_update_task(args):
+    tasks = Task.load_tasks()
+    for task in tasks:
+        if task["id"] == args.id:
+            task["description"] = args.description
+            Task.save_tasks(tasks)
+
 def main():
     parser =  argparse.ArgumentParser(prog="task-cli")
     subparser = parser.add_subparsers(help='subcommand help')
     
     # Add Subcommand
-    parser_add = subparser.add_parser('add', help="add a task to the list")
-    parser_add.add_argument('task', help="Name of the task")
+    parser_add = subparser.add_parser('add', help="add a task to the list.")
+    parser_add.add_argument('task', help="Name of the task.")
     parser_add.set_defaults(func=handle_add_task)
     
     # Mark Subcommand
@@ -113,9 +120,15 @@ def main():
     parser_list.set_defaults(func=handle_list_tasks)
     
     # Delete Subcommand
-    parser_delete = subparser.add_parser("delete", help="Delete a task by its ID")
+    parser_delete = subparser.add_parser("delete", help="Delete a task by its ID.")
     parser_delete.add_argument("id", type=int)
     parser.set_defaults(func=handle_delete_task)
+    
+    # Update Subcommand
+    parser_update = subparser.add_parser("update", help="Update the description of a task.")
+    parser_update.add_argument("id", type=int)
+    parser_update.add_argument("description", help="The new description of the task.")
+    parser_update.set_defaults(func=handle_update_task)
     
     # Parse Args
     args = parser.parse_args()
