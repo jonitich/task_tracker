@@ -83,6 +83,14 @@ def handle_list_tasks(args):
                 if task["status"] == "done":
                     print(task)
 
+def handle_delete_task(args):
+    tasks = Task.load_tasks()
+    new_task_list = []
+    for i in range(len(tasks)):
+        if tasks[i]["id"] == args.id:
+            continue
+        new_task_list.append(tasks[i])
+    Task.save_tasks(new_task_list)
 
 def main():
     parser =  argparse.ArgumentParser(prog="task-cli")
@@ -103,6 +111,11 @@ def main():
     parser_list = subparser.add_parser("list", help="List tasks.")
     parser_list.add_argument("task", choices=["all", "to-do", "in-progress", "done"])
     parser_list.set_defaults(func=handle_list_tasks)
+    
+    # Delete Subcommand
+    parser_delete = subparser.add_parser("delete", help="Delete a task by its ID")
+    parser_delete.add_argument("id", type=int)
+    parser.set_defaults(func=handle_delete_task)
     
     # Parse Args
     args = parser.parse_args()
