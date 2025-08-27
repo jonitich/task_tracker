@@ -1,53 +1,10 @@
 import time
-import os
 from pathlib import Path
-import json
 import argparse
-
-class Task():
-    """ This class is a template for Tasks objects """
-    
-    FILE_PATH = "./tasks.json"
-    
-    if not os.path.exists(FILE_PATH):
-        with open(FILE_PATH, "w") as f:
-            json.dump([], f)
-    
-    def __init__(self, task):
-        self.description = task
-        self.state = "to-do"
-        self.creation_at = time.ctime()
-        self.update_at = time.ctime()
-    
-    @staticmethod
-    def load_tasks():
-        """ Load tasks """
-        with open(Task.FILE_PATH,"r") as f:
-            return json.load(f)
-    
-    @staticmethod
-    def save_tasks(tasks):
-        with open(Task.FILE_PATH, "w") as f:
-            json.dump(tasks, f)
-    
-    def create_task(self):
-        """ Cretate task method """
-        tasks = self.load_tasks()
-        new_id = max([task["id"] for task in tasks], default=0) + 1
-        task = {
-            "id": new_id,
-            "description": self.description,
-            "status": self.state,
-            "createdAt": self.creation_at,
-            "updatedAt": self.update_at
-        }
-        tasks.append(task)
-        self.save_tasks(tasks)
-        print(f"Task {new_id} created successfully.")
-
+from task_class import Task
 
 def handle_add_task(args):
-    task = Task(args.task)
+    task = Task(args.task, args.notes)
     task.create_task()
 
 def handle_mark_tasks(args):
@@ -56,7 +13,7 @@ def handle_mark_tasks(args):
         if task["id"] == args.id:
             t = {
                 "id": args.id,
-                "description": task["description"],
+                "notes": task["notes"],
                 "status": args.state,
                 "createdAt": task["createdAt"],
                 "updatedAt": time.ctime()
@@ -96,7 +53,7 @@ def handle_update_task(args):
     tasks = Task.load_tasks()
     for task in tasks:
         if task["id"] == args.id:
-            task["description"] = args.description
+            task["notes"] += f'\n {args.notes}'
             Task.save_tasks(tasks)
 
 def main():
@@ -106,6 +63,7 @@ def main():
     # Add Subcommand
     parser_add = subparser.add_parser('add', help="add a task to the list.")
     parser_add.add_argument('task', help="Name of the task.")
+    parser_add.add_argument('-n', '--notes', help='Add some comments/notes to the task.')
     parser_add.set_defaults(func=handle_add_task)
     
     # Mark Subcommand
@@ -127,7 +85,7 @@ def main():
     # Update Subcommand
     parser_update = subparser.add_parser("update", help="Update the description of a task.")
     parser_update.add_argument("id", type=int)
-    parser_update.add_argument("description", help="The new description of the task.")
+    parser_update.add_argument("notes", help="The new notes of the task.")
     parser_update.set_defaults(func=handle_update_task)
     
     # Parse Args
