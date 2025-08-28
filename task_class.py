@@ -3,14 +3,14 @@ import os, json, time
 class Task():
     """ This class is a template for Tasks objects """
     
-    FILE_PATH = "./tasks.json"
+    FILE_PATH = f"{os.getenv('HOME')}/github/task_tracker/tasks.json"
     
     if not os.path.exists(FILE_PATH):
         with open(FILE_PATH, "w") as f:
             json.dump([], f)
     
     def __init__(self, task, notes=""):
-        self.title = task
+        self.task = task
         self.state = "to-do"
         self.creation_at = time.ctime()
         self.update_at = time.ctime()
@@ -33,7 +33,7 @@ class Task():
         new_id = max([task["id"] for task in tasks], default=0) + 1
         task = {
             "id": new_id,
-            "title": self.title,
+            "title": self.task,
             "status": self.state,
             "createdAt": self.creation_at,
             "updatedAt": self.update_at,

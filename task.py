@@ -13,10 +13,11 @@ def handle_mark_tasks(args):
         if task["id"] == args.id:
             t = {
                 "id": args.id,
-                "notes": task["notes"],
+                "title": task["task"],
                 "status": args.state,
                 "createdAt": task["createdAt"],
-                "updatedAt": time.ctime()
+                "updatedAt": time.ctime(),
+                "notes": task["notes"]
             }
             tasks[args.id -1] = t
             Task.save_tasks(tasks)
@@ -53,7 +54,10 @@ def handle_update_task(args):
     tasks = Task.load_tasks()
     for task in tasks:
         if task["id"] == args.id:
-            task["notes"] += f'\n {args.notes}'
+            if task['notes'] is not None:
+                task["notes"] += f'\n {args.notes}'
+            else:
+                task['notes'] = args.notes
             Task.save_tasks(tasks)
 
 def main():
